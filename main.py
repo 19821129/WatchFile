@@ -2,11 +2,15 @@
 # @Author: MSCopilot
 # @Time: 2025/8/23 21:58
 
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 import time
 import shutil
 import os
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+import sys
+import pystray
+from PIL import Image
+import threading
 
 def MoveFile(src: str, dst: str) -> None:
     if os.path.isfile(src) and os.path.exists(src):
@@ -21,6 +25,25 @@ def MoveFile(src: str, dst: str) -> None:
             src = new_src_path
             dst_path = os.path.join(dst, file_name)
         shutil.move(src, dst)  # 移动文件（此时目标路径无同名文件）
+
+def on_clicked(icon, item):
+    if item.text == "退出(Quit)":
+        icon.stop()
+        sys.exit(0)
+
+menu = (
+    pystray.MenuItem("退出(Quit)", on_clicked),
+)
+icon_image = Image.open("icon.png")
+tray_icon = pystray.Icon("WatchFile", icon_image, "WatchFile", menu)
+
+def background_task():
+    pass
+
+def start_tray():
+    thread = threading.Thread(target=background_task, daemon=True)  # 守护线程，主程序退出时自动结束
+    thread.start()
+    tray_icon.run()
 
 Filelib = {
     (".jpg", ".jpeg", ".png", ".gif", ".bmp"): "C:\\Users\\ASUS\\Pictures",
@@ -53,6 +76,7 @@ observer.schedule(event_handler, path="C:\\Users\\ASUS\\Downloads", recursive=Tr
 observer.start()
 
 print("WatchFile Observer Started...")
+start_tray()
 
 try:
     while True:

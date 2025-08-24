@@ -23,12 +23,13 @@ def MoveFile(src: str, dst: str) -> None:
         shutil.move(src, dst)  # 移动文件（此时目标路径无同名文件）
 
 Filelib = {
-    (".jpg", ".jpeg", ".png", ".gif"): "C:\\Users\\ASUS\\Pictures",
-    (".mp4", ".avi"): "C:\\Users\\ASUS\\Videos",
+    (".jpg", ".jpeg", ".png", ".gif", ".bmp"): "C:\\Users\\ASUS\\Pictures",
+    (".mp4", ".avi", ".mkv"): "C:\\Users\\ASUS\\Videos",
     ("setup.exe", "installer.exe"): "C:\\Users\\ASUS\\Documents\\Setups & Installers",
     (".pdf"): "C:\\Users\\ASUS\\Documents\\PDFs",
-    (".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"): "C:\\Users\\ASUS\\Documents",
+    (".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt"): "C:\\Users\\ASUS\\Documents",
     (".mp3", ".m4a", ".wav", ".aac"): "C:\\Users\\ASUS\\Music",
+    (".py", ".pyc", "python"): "C:\\Users\\ASUS\\Documents\\Python",
 }
 
 class MyHandler(FileSystemEventHandler):
@@ -51,7 +52,7 @@ event_handler = MyHandler()
 observer.schedule(event_handler, path="C:\\Users\\ASUS\\Downloads", recursive=True)
 observer.start()
 
-print("Observer Started...")
+print("WatchFile Observer Started...")
 
 try:
     while True:

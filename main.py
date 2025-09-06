@@ -1,6 +1,7 @@
 # -- coding: utf-8 --
 # @Author: MSCopilot
 # @Time: 2025/8/23 21:58
+import configparser
 
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -8,11 +9,18 @@ import time
 import shutil
 import os
 import sys
+import json
 import pystray
 from PIL import Image
 import threading
 
 def MoveFile(src: str, dst: str) -> None:
+    if not os.path.exists(dst):
+        global tray_icon
+        print(f"要移动的目录 {dst} 不存在！")
+        tray_icon.notify(f"目标目录 {dst} 不存在！", title="移动失败")
+        return
+
     if os.path.isfile(src) and os.path.exists(src):
         file_name = src.split(os.path.sep)[-1]
         time.sleep(0.5)
@@ -27,11 +35,26 @@ def MoveFile(src: str, dst: str) -> None:
         shutil.move(src, dst)  # 移动文件（此时目标路径无同名文件）
 
 def on_clicked(icon, item):
+    if item.text == "设置(Settings)":
+        import subprocess
+        subprocess.call(["python", "GUI.py"])
     if item.text == "退出(Quit)":
         icon.stop()
         sys.exit(0)
 
+
+with open("config.json", "r") as f:
+    config_string = f.read()
+
+config_string = config_string.replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
+
+config = json.loads(config_string)
+
+Filelib = config["FileLib"]
+WatchDir = config["WatchDir"]
+
 menu = (
+    # pystray.MenuItem("设置(Settings)", on_clicked),      # 实验性功能
     pystray.MenuItem("退出(Quit)", on_clicked),
 )
 icon_image = Image.open("icon.png")
@@ -45,34 +68,38 @@ def start_tray():
     thread.start()
     tray_icon.run()
 
-Filelib = {
-    (".jpg", ".jpeg", ".png", ".gif", ".bmp"): "C:\\Users\\ASUS\\Pictures",
-    (".mp4", ".avi", ".mkv"): "C:\\Users\\ASUS\\Videos",
-    ("setup.exe", "installer.exe"): "C:\\Users\\ASUS\\Documents\\Setups & Installers",
-    (".pdf"): "C:\\Users\\ASUS\\Documents\\PDFs",
-    (".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt"): "C:\\Users\\ASUS\\Documents",
-    (".mp3", ".m4a", ".wav", ".aac"): "C:\\Users\\ASUS\\Music",
-    (".py", ".pyc", "python"): "C:\\Users\\ASUS\\Documents\\Python",
-}
+#
+# Filelib = {
+#     (".jpg", ".jpeg", ".png", ".gif", ".bmp"): "C:\\Users\\ASUS\\Pictures",
+#     (".mp4", ".avi", ".mkv"): "C:\\Users\\ASUS\\Videos",
+#     ("setup.exe", "installer.exe"): "C:\\Users\\ASUS\\Documents\\Setups & Installers",
+#     (".pdf"): "C:\\Users\\ASUS\\Documents\\PDFs",
+#     (".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt"): "C:\\Users\\ASUS\\Documents",
+#     (".mp3", ".m4a", ".wav", ".aac"): "C:\\Users\\ASUS\\Music",
+#     (".py", ".pyc", "python"): "C:\\Users\\ASUS\\Documents\\Python",
+# }
 
 class MyHandler(FileSystemEventHandler):
     def on_created(self, event):
         if not event.is_directory:
-            for i in Filelib.keys():
-                for j in i:
+            for i in Filelib.items():
+                for j in i[1]:
                     if j.lower().startswith(".") and event.src_path.lower().endswith(j):
                         if os.path.exists(event.src_path):
-                            print(f"匹配到扩展名规则：{j} -> 目标路径：{Filelib[i]}")
-                            MoveFile(event.src_path, Filelib[i])
+                            print(f"匹配到扩展名规则：{j} -> 目标路径：{i[0]}")
+                            MoveFile(event.src_path, i[0])
                     elif j.lower() in event.src_path.lower():
                         if os.path.exists(event.src_path):
-                            print(f"匹配到扩展名规则：{j} -> 目标路径：{Filelib[i]}")
-                            MoveFile(event.src_path, Filelib[i])
+                            print(f"匹配到扩展名规则：{j} -> 目标路径：{i[0]}")
+                            MoveFile(event.src_path, i[0])
 
 
 observer = Observer()
 event_handler = MyHandler()
-observer.schedule(event_handler, path="C:\\Users\\ASUS\\Downloads", recursive=True)
+
+for i in range(len(WatchDir)):
+    observer.schedule(event_handler, path=WatchDir[i], recursive=True)
+
 observer.start()
 
 print("WatchFile Observer Started...")

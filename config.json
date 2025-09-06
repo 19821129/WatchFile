@@ -1,0 +1,48 @@
+{
+  "FileLib": {
+    "{HOME}\\Picture": [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".bmp",
+      ".tif",
+      ".tiff",
+      ".jfif"
+    ],
+    "{HOME}\\Videos": [
+      ".mp4",
+      ".avi",
+      ".mkv"
+    ],
+    "{HOME}Documents\\Setups & Installers": [
+      "setup.exe",
+      "installer.exe"
+    ],
+    "{HOME}Documents\\PDFs": [
+      ".pdf"
+    ],
+    "{HOME}\\Documents": [
+      ".doc",
+      ".docx",
+      ".xls",
+      ".xlsx",
+      ".ppt",
+      ".pptx",
+      ".odt"
+    ],
+    "{HOME}\\Music": [
+      ".mp3",
+      ".m4a",
+      ".wav",
+      ".aac"
+    ],
+    "{HOME}\\Documents\\Python": [
+      ".py",
+      "python"
+    ]
+  },
+  "WatchDir": [
+    "{HOME}\\Downloads"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "C:\\Users\\ASUS\\Pictures": [
+    ".jpg", ".jpeg",
+    ".png", ".gif",
+    ".bmp", ".tif",
+    ".tiff", ".jfif"
+  ],
+  "C:\\Users\\ASUS\\Videos": [
+    ".mp4", ".avi",
+    ".mkv"
+  ],
+  "C:\\Users\\ASUS\\Documents\\Setups & Installers": [
+    "setup.exe", "installer.exe"
+  ],
+  "C:\\Users\\ASUS\\Documents\\PDFs": [
+    ".pdf"
+  ],
+  "C:\\Users\\ASUS\\Documents": [
+    ".doc", ".docx",
+    ".xls", ".xlsx",
+    ".ppt", ".pptx",
+    ".odt"
+  ],
+  "C:\\Users\\ASUS\\Music": [
+    ".mp3", ".m4a",
+    ".wav", ".aac"
+  ],
+  "C:\\Users\\ASUS\\Documents\\Python": [
+    ".py", "python"
+  ]
+}

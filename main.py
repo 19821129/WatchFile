@@ -1,8 +1,6 @@
 # -- coding: utf-8 --
 # @Author: MSCopilot
 # @Time: 2025/8/23 21:58
-import configparser
-
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
@@ -35,26 +33,17 @@ def MoveFile(src: str, dst: str) -> None:
         shutil.move(src, dst)  # 移动文件（此时目标路径无同名文件）
 
 def on_clicked(icon, item):
-    if item.text == "设置(Settings)":
+    if item.text == "打开 Config 文件":
         import subprocess
-        subprocess.call(["python", "GUI.py"])
+        subprocess.Popen(['notepad.exe', 'config.json'])
     if item.text == "退出(Quit)":
         icon.stop()
         sys.exit(0)
 
-
-with open("config.json", "r") as f:
-    config_string = f.read()
-
-config_string = config_string.replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
-
-config = json.loads(config_string)
-
-Filelib = config["FileLib"]
-WatchDir = config["WatchDir"]
-
+# 加载托盘图标
 menu = (
-    # pystray.MenuItem("设置(Settings)", on_clicked),      # 实验性功能
+    pystray.MenuItem("打开 Config 文件", on_clicked),      # 实验性功能
+    pystray.Menu.SEPARATOR,
     pystray.MenuItem("退出(Quit)", on_clicked),
 )
 icon_image = Image.open("icon.png")
@@ -68,18 +57,33 @@ def start_tray():
     thread.start()
     tray_icon.run()
 
+# 加载 config 文件
+with open("config.json", "r", encoding="utf-8") as f:
+    config_string = f.read()
+
+config_string = config_string.replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
+
+try:
+    config = json.loads(config_string)
+except json.decoder.JSONDecodeError:
+    print("\033[1;31mIncorrect config.json\033[0m")
+    sys.exit(1)
+
+Filelib = config["FileLib"]
+WatchDir = config["WatchDir"]
+
 #
 # Filelib = {
-#     (".jpg", ".jpeg", ".png", ".gif", ".bmp"): "C:\\Users\\ASUS\\Pictures",
-#     (".mp4", ".avi", ".mkv"): "C:\\Users\\ASUS\\Videos",
-#     ("setup.exe", "installer.exe"): "C:\\Users\\ASUS\\Documents\\Setups & Installers",
-#     (".pdf"): "C:\\Users\\ASUS\\Documents\\PDFs",
-#     (".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt"): "C:\\Users\\ASUS\\Documents",
-#     (".mp3", ".m4a", ".wav", ".aac"): "C:\\Users\\ASUS\\Music",
-#     (".py", ".pyc", "python"): "C:\\Users\\ASUS\\Documents\\Python",
+#     (".jpg", ".jpeg", ".png", ".gif", ".bmp"): "C:/Users/ASUS/Pictures",
+#     (".mp4", ".avi", ".mkv"): "C:/Users/ASUS/Videos",
+#     ("setup.exe", "installer.exe"): "C:/Users/ASUS/Documents/Setups & Installers",
+#     (".pdf"): "C:/Users/ASUS/Documents/PDFs",
+#     (".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt"): "C:/Users/ASUS/Documents",
+#     (".mp3", ".m4a", ".wav", ".aac"): "C:/Users/ASUS/Music",
+#     (".py", ".pyc", "python"): "C:/Users/ASUS/Documents/Python",
 # }
 
-class MyHandler(FileSystemEventHandler):
+class Handler(FileSystemEventHandler):
     def on_created(self, event):
         if not event.is_directory:
             for i in Filelib.items():
@@ -95,7 +99,7 @@ class MyHandler(FileSystemEventHandler):
 
 
 observer = Observer()
-event_handler = MyHandler()
+event_handler = Handler()
 
 for i in range(len(WatchDir)):
     observer.schedule(event_handler, path=WatchDir[i], recursive=True)
@@ -103,6 +107,11 @@ for i in range(len(WatchDir)):
 observer.start()
 
 print("WatchFile Observer Started...")
+print("\nNow Watching:\033[1m")
+for i in WatchDir:
+    print(i)
+print("\033[0m")
+
 start_tray()
 
 try:

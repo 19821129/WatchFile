@@ -3,7 +3,6 @@
 # @Time: 2025/8/24 19:26
 
 from maliang import Tk, Canvas, PhotoImage, Text
-from tkinter.ttk import Treeview
 from PIL import Image
 
 def start_gui():

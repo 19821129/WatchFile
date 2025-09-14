@@ -32,13 +32,8 @@ def MoveFile(src: str, dst: str) -> None:
             dst_path = os.path.join(dst, file_name)
         shutil.move(src, dst)  # 移动文件（此时目标路径无同名文件）
 
-def on_clicked(icon, item):
-    if item.text == "打开 Config 文件":
-        import subprocess
-        subprocess.Popen(['notepad.exe', 'config.json'])
-    if item.text == "退出(Quit)":
-        icon.stop()
-        sys.exit(0)
+def on_clicked(event):
+    pass
 
 # 加载托盘图标
 menu = (
@@ -49,6 +44,39 @@ menu = (
 icon_image = Image.open("icon.png")
 tray_icon = pystray.Icon("WatchFile", icon_image, "WatchFile", menu)
 
+def load_config(default=None, notify="无法识别 config.json 文件！"):
+    global tray_icon
+    if default is None:
+        default = {"FileLib": {}, "WatchDir": []}
+
+    # 加载 config 文件
+    with open("config.json", "r", encoding="utf-8") as f:
+        config_string = f.read()
+
+    config_string = config_string.replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
+
+    try:
+        config = json.loads(config_string)
+    except json.decoder.JSONDecodeError:
+        print("\033[1;31mIncorrect config.json\033[0m")
+        tray_icon.notify(notify, "WatchFile")
+        config = default
+
+    return config
+
+config = load_config()
+
+def on_clicked(icon, item):
+    global config
+
+    if item.text == "打开 Config 文件":
+        import subprocess
+        subprocess.Popen(['notepad.exe', 'config.json'])
+        config = load_config(config, "无效的 config.json！")
+    if item.text == "退出(Quit)":
+        icon.stop()
+        sys.exit(0)
+
 def background_task():
     pass
 
@@ -56,18 +84,6 @@ def start_tray():
     thread = threading.Thread(target=background_task, daemon=True)  # 守护线程，主程序退出时自动结束
     thread.start()
     tray_icon.run()
-
-# 加载 config 文件
-with open("config.json", "r", encoding="utf-8") as f:
-    config_string = f.read()
-
-config_string = config_string.replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
-
-try:
-    config = json.loads(config_string)
-except json.decoder.JSONDecodeError:
-    print("\033[1;31mIncorrect config.json\033[0m")
-    sys.exit(1)
 
 Filelib = config["FileLib"]
 WatchDir = config["WatchDir"]

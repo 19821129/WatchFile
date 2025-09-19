@@ -32,50 +32,59 @@ def MoveFile(src: str, dst: str) -> None:
             dst_path = os.path.join(dst, file_name)
         shutil.move(src, dst)  # 移动文件（此时目标路径无同名文件）
 
-def on_clicked(event):
-    pass
-
-# 加载托盘图标
-menu = (
-    pystray.MenuItem("打开 Config 文件", on_clicked),      # 实验性功能
-    pystray.Menu.SEPARATOR,
-    pystray.MenuItem("退出(Quit)", on_clicked),
-)
-icon_image = Image.open("icon.png")
-tray_icon = pystray.Icon("WatchFile", icon_image, "WatchFile", menu)
-
-def load_config(default=None, notify="无法识别 config.json 文件！"):
-    global tray_icon
-    if default is None:
-        default = {"FileLib": {}, "WatchDir": []}
-
-    # 加载 config 文件
-    with open("config.json", "r", encoding="utf-8") as f:
-        config_string = f.read()
-
-    config_string = config_string.replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
-
-    try:
-        config = json.loads(config_string)
-    except json.decoder.JSONDecodeError:
-        print("\033[1;31mIncorrect config.json\033[0m")
-        tray_icon.notify(notify, "WatchFile")
-        config = default
-
-    return config
-
-config = load_config()
-
+# 先定义事件处理函数
 def on_clicked(icon, item):
-    global config
+    global config, tray_icon  # 确保能访问全局变量
 
     if item.text == "打开 Config 文件":
         import subprocess
         subprocess.Popen(['notepad.exe', 'config.json'])
-        config = load_config(config, "无效的 config.json！")
-    if item.text == "退出(Quit)":
+    elif item.text == "重新加载 Config 文件":
+        # 重新加载配置并更新托盘图标
+        new_config = load_config(config, "无效的 config.json！")
+        if new_config != config:  # 如果配置有变化
+            config = new_config
+            tray_icon.notify("配置已重新加载", "WatchFile")
+    elif item.text == "退出(Quit)":
         icon.stop()
         sys.exit(0)
+
+
+# 然后定义配置加载函数
+def load_config(default=None, notify="无法识别 config.json 文件！"):
+    if default is None:
+        default = {"FileLib": {}, "WatchDir": []}
+
+    try:
+        with open("config.json", "r", encoding="utf-8") as f:
+            config_string = f.read().replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
+
+        return json.loads(config_string)
+
+    except Exception as e:
+        print(f"\033[1;31m配置加载错误: {str(e)}\033[0m")
+        if 'tray_icon' in globals():  # 确保托盘图标已存在
+            tray_icon.notify(notify, "WatchFile")
+        return default
+
+
+# 初始化配置
+config = load_config()
+
+# 最后创建托盘图标（此时on_clicked已定义）
+icon_image = Image.open("icon.png")
+menu = (
+    pystray.MenuItem("打开 Config 文件", on_clicked),
+    pystray.MenuItem("重新加载 Config 文件", on_clicked),
+    pystray.Menu.SEPARATOR,
+    pystray.MenuItem("退出(Quit)", on_clicked),
+)
+
+tray_icon = pystray.Icon("WatchFile", icon_image, "WatchFile", menu)
+
+
+# 启动托盘图标（可选）
+# tray_icon.run()
 
 def background_task():
     pass

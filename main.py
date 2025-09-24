@@ -67,7 +67,6 @@ def load_config(default=None, notify="无法识别 config.json 文件！"):
             tray_icon.notify(notify, "WatchFile")
         return default
 
-
 # 初始化配置
 config = load_config()
 

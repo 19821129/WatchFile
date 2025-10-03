@@ -9,6 +9,7 @@ import os
 import sys
 import json
 import pystray
+import re
 from PIL import Image
 import threading
 
@@ -58,6 +59,20 @@ def load_config(default=None, notify="无法识别 config.json 文件！"):
     try:
         with open("config.json", "r", encoding="utf-8") as f:
             config_string = f.read().replace(r"{HOME}", os.path.expanduser("~").replace("\\", "\\\\"))
+
+        config = json.loads(config_string)
+        errors = []
+        for i in config['FileLib'].keys():
+            for j in config['FileLib'][i]:
+                try:
+                    re.compile(j)
+                except re.error:
+                    print(f"\033[1;31m配置加载错误: 无法解析表达式 {j} 。\033[0m")
+                    errors.append(j)
+                    config['FileLib'][i].remove(j)
+
+        if 'tray_icon' in globals():
+            tray_icon.notify(f"正则表达式 {"\"" + "\", ".join(errors) + "\""} 错误！", "WatchFile")
 
         return json.loads(config_string)
 
@@ -112,14 +127,14 @@ class Handler(FileSystemEventHandler):
         if not event.is_directory:
             for i in Filelib.items():
                 for j in i[1]:
-                    if j.lower().startswith(".") and event.src_path.lower().endswith(j):
-                        if os.path.exists(event.src_path):
-                            print(f"匹配到扩展名规则：{j} -> 目标路径：{i[0]}")
+                    print(j, event.src_path)
+                    try:
+                        if re.match(j, event.src_path):
+                            print(f"匹配到正确的正则表达式 {j} -> 移动到 {i[0]}")
                             MoveFile(event.src_path, i[0])
-                    elif j.lower() in event.src_path.lower():
-                        if os.path.exists(event.src_path):
-                            print(f"匹配到扩展名规则：{j} -> 目标路径：{i[0]}")
-                            MoveFile(event.src_path, i[0])
+                    except re.PatternError:
+                        print("错误的正则表达式！")
+
 
 
 observer = Observer()

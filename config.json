@@ -1,44 +1,44 @@
 {
   "FileLib": {
     "{HOME}\\Pictures": [
-      ".jpg",
-      ".jpeg",
-      ".png",
-      ".gif",
-      ".bmp",
-      ".tif",
-      ".tiff",
-      ".jfif"
+      ".*\\.jpg",
+      ".*\\.jpeg",
+      ".*\\.png",
+      ".*\\.gif",
+      ".*\\.bmp",
+      ".*\\.tif",
+      ".*\\.tiff",
+      ".*\\.jfif"
     ],
     "{HOME}\\Videos": [
-      ".mp4",
-      ".avi",
-      ".mkv"
+      ".*\\.mp4",
+      ".*\\.avi",
+      ".*\\.mkv"
     ],
     "{HOME}Documents\\Setups & Installers": [
-      "setup.exe",
-      "installer.exe"
+      "setup.*\\.exe",
+      "installer.*\\.exe"
     ],
     "{HOME}Documents\\PDFs": [
-      ".pdf"
+      ".*\\.pdf"
     ],
     "{HOME}\\Documents": [
-      ".doc",
-      ".docx",
-      ".xls",
-      ".xlsx",
-      ".ppt",
-      ".pptx",
-      ".odt"
+      ".*\\.doc",
+      ".*\\.docx",
+      ".*\\.xls",
+      ".*\\.xlsx",
+      ".*\\.ppt",
+      ".*\\.pptx",
+      ".*\\.odt"
     ],
     "{HOME}\\Music": [
-      ".mp3",
-      ".m4a",
-      ".wav",
-      ".aac"
+      ".*\\.mp3",
+      ".*\\.m4a",
+      ".*\\.wav",
+      ".*\\.aac"
     ],
     "{HOME}\\Documents\\Python": [
-      ".py",
+      ".*\\.py",
       "python"
     ]
   },

@@ -1,48 +1,62 @@
 {
   "FileLib": {
-    "{HOME}\\Pictures": [
-      ".*\\.jpg",
-      ".*\\.jpeg",
-      ".*\\.png",
-      ".*\\.gif",
-      ".*\\.bmp",
-      ".*\\.tif",
-      ".*\\.tiff",
-      ".*\\.jfif"
-    ],
-    "{HOME}\\Videos": [
-      ".*\\.mp4",
-      ".*\\.avi",
-      ".*\\.mkv"
-    ],
-    "{HOME}Documents\\Setups & Installers": [
-      "setup.*\\.exe",
-      "installer.*\\.exe"
-    ],
-    "{HOME}Documents\\PDFs": [
-      ".*\\.pdf"
-    ],
-    "{HOME}\\Documents": [
-      ".*\\.doc",
-      ".*\\.docx",
-      ".*\\.xls",
-      ".*\\.xlsx",
-      ".*\\.ppt",
-      ".*\\.pptx",
-      ".*\\.odt"
-    ],
-    "{HOME}\\Music": [
-      ".*\\.mp3",
-      ".*\\.m4a",
-      ".*\\.wav",
-      ".*\\.aac"
-    ],
-    "{HOME}\\Documents\\Python": [
-      ".*\\.py",
-      "python"
-    ]
+    "ON_CREATED": {
+      "{HOME}\\Pictures": [
+        ".*\\.jpg",
+        ".*\\.jpeg",
+        ".*\\.png",
+        ".*\\.gif",
+        ".*\\.bmp",
+        ".*\\.tif",
+        ".*\\.tiff",
+        ".*\\.jfif"
+      ],
+      "{HOME}\\Videos": [
+        ".*\\.mp4",
+        ".*\\.avi",
+        ".*\\.mkv"
+      ],
+      "{HOME}Documents\\Setups & Installers": [
+        "setup.*\\.exe",
+        "installer.*\\.exe"
+      ],
+      "{HOME}Documents\\PDFs": [
+        ".*\\.pdf"
+      ],
+      "{HOME}\\Documents": [
+        ".*\\.doc",
+        ".*\\.docx",
+        ".*\\.xls",
+        ".*\\.xlsx",
+        ".*\\.ppt",
+        ".*\\.pptx",
+        ".*\\.odt"
+      ],
+      "{HOME}\\Music": [
+        ".*\\.mp3",
+        ".*\\.m4a",
+        ".*\\.wav",
+        ".*\\.aac"
+      ],
+      "{HOME}\\Documents\\Python": [
+        ".*\\.py",
+        "python"
+      ]
+    },
+    "ON_MODIFIED": {
+
+    },
+    "ON_DELETED": {
+
+    },
+    "ON_MOVED": {
+
+    },
+    "ANY_EVENT": {
+
+    }
   },
   "WatchDir": [
-    "{HOME}\\Downloads"
+    ["{HOME}\\Downloads", "no_recursive"]
   ]
 }

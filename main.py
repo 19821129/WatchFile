@@ -2,7 +2,7 @@
 # @Author: MSCopilot
 # @Time: 2025/8/23 21:58
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import FileSystemEventHandler, FileSystemEvent
 import time
 import shutil
 import os
@@ -13,7 +13,7 @@ import re
 from PIL import Image
 import threading
 
-def MoveFile(src: str, dst: str) -> None:
+def move_file(src: str, dst: str) -> None:
     if not os.path.exists(dst):
         global tray_icon
         print(f"要移动的目录 {dst} 不存在！")
@@ -62,14 +62,15 @@ def load_config(default=None, notify="无法识别 config.json 文件！"):
 
         config = json.loads(config_string)
         errors = []
-        for i in config['FileLib'].keys():
-            for j in config['FileLib'][i]:
-                try:
-                    re.compile(j)
-                except re.error:
-                    print(f"\033[1;31m配置加载错误: 无法解析表达式 {j} 。\033[0m")
-                    errors.append(j)
-                    config['FileLib'][i].remove(j)
+        for i in config['FileLib'].keys(): # ON_... 层
+            for k in config['FileLib'][i].keys():
+                for j in config['FileLib'][i][k]:
+                    try:
+                        re.compile(j)
+                    except re.error:
+                        print(f"\033[1;31m配置加载错误: 无法解析表达式 {j} 。\033[0m")
+                        errors.append(j)
+                        config['FileLib'][i][k].remove(j)
 
         if 'tray_icon' in globals():
             tray_icon.notify(f"正则表达式 {"\"" + "\", ".join(errors) + "\""} 错误！", "WatchFile")
@@ -81,6 +82,22 @@ def load_config(default=None, notify="无法识别 config.json 文件！"):
         if 'tray_icon' in globals():  # 确保托盘图标已存在
             tray_icon.notify(notify, "WatchFile")
         return default
+
+def watch_and_move(event, mode):
+    global Filelib
+
+    if not event.is_directory:
+        for i in Filelib.items():
+            if i[0] == mode:
+                for k in i[1].items():
+                    for j in k[1]:
+                        print(j, event.src_path)
+                        try:
+                            if re.match(j, event.src_path):
+                                print(f"匹配到正确的正则表达式 {j} -> 移动到 {k[0]}")
+                                move_file(event.src_path, k[0])
+                        except re.PatternError:
+                            print("错误的正则表达式！")
 
 # 初始化配置
 config = load_config()
@@ -124,31 +141,34 @@ WatchDir = config["WatchDir"]
 
 class Handler(FileSystemEventHandler):
     def on_created(self, event):
-        if not event.is_directory:
-            for i in Filelib.items():
-                for j in i[1]:
-                    print(j, event.src_path)
-                    try:
-                        if re.match(j, event.src_path):
-                            print(f"匹配到正确的正则表达式 {j} -> 移动到 {i[0]}")
-                            MoveFile(event.src_path, i[0])
-                    except re.PatternError:
-                        print("错误的正则表达式！")
+        watch_and_move(event, "ON_CREATED")
 
+    def on_moved(self, event):
+        watch_and_move(event, "ON_MOVED")
+
+    def on_deleted(self, event):
+        watch_and_move(event, "ON_DELETED")
+
+    def on_modified(self, event):
+        watch_and_move(event, "ON_MODIFIED")
+
+    def on_any_event(self, event):
+        watch_and_move(event, "ANY_EVENT")
 
 
 observer = Observer()
 event_handler = Handler()
 
 for i in range(len(WatchDir)):
-    observer.schedule(event_handler, path=WatchDir[i], recursive=True)
+    observer.schedule(event_handler, path=WatchDir[i][0], recursive=\
+    True if WatchDir[i][1] == "recursive" else False)
 
 observer.start()
 
 print("WatchFile Observer Started...")
 print("\nNow Watching:\033[1m")
 for i in WatchDir:
-    print(i)
+    print(i[0])
 print("\033[0m")
 
 start_tray()

@@ -52,7 +52,7 @@
     "ON_MOVED": {
 
     },
-    "ON_ANY_EVENT": {
+    "ANY_EVENT": {
 
     }
   },

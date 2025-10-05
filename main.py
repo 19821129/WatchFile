@@ -91,7 +91,6 @@ def watch_and_move(event, mode):
             if i[0] == mode:
                 for k in i[1].items():
                     for j in k[1]:
-                        print(j, event.src_path)
                         try:
                             if re.match(j, event.src_path):
                                 print(f"匹配到正确的正则表达式 {j} -> 移动到 {k[0]}")
@@ -140,8 +139,20 @@ WatchDir = config["WatchDir"]
 # }
 
 class Handler(FileSystemEventHandler):
+    def on_moved(self, event):
+        watch_and_move(event, "ON_MOVED")
+
+    def on_deleted(self, event):
+        watch_and_move(event, "ON_DELETED")
+
+    def on_modified(self, event):
+        watch_and_move(event, "ON_MODIFIED")
+
+    def on_created(self, event):
+        watch_and_move(event, "ON_CREATED")
+
     def on_any_event(self, event):
-        watch_and_move(event, event.event_type.upper())
+        watch_and_move(event, "ANY_EVENT")
 
 
 observer = Observer()
